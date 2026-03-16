@@ -1,44 +1,43 @@
-import FocusRoom from "./pages/FocusRoom";
-import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import Landing from './pages/Landing'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Dashboard from './pages/Dashboard'
+import Tasks from './pages/Tasks'
+import Schedule from './pages/Schedule'
+import FocusRooms from './pages/FocusRooms'
+import FocusRoom from './pages/FocusRoom'
+import Profile from './pages/Profile'
+import AppLayout from './components/AppLayout'
 
-function App() {
-  return <FocusRoom />;
+function PrivateRoute({ children }) {
+  const { user } = useAuth()
+  return user ? children : <Navigate to="/login" replace />
 }
 
-export default App;
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
+function PublicRoute({ children }) {
+  const { user } = useAuth()
+  return !user ? children : <Navigate to="/dashboard" replace />
+}
 
-// function App() {
-//   const [count, setCount] = useState(0)
-
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vite.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
-
-// export default App
-
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/dashboard" element={<PrivateRoute><AppLayout><Dashboard /></AppLayout></PrivateRoute>} />
+          <Route path="/tasks" element={<PrivateRoute><AppLayout><Tasks /></AppLayout></PrivateRoute>} />
+          <Route path="/schedule" element={<PrivateRoute><AppLayout><Schedule /></AppLayout></PrivateRoute>} />
+          <Route path="/rooms" element={<PrivateRoute><AppLayout><FocusRooms /></AppLayout></PrivateRoute>} />
+          <Route path="/rooms/:roomId" element={<PrivateRoute><FocusRoom /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><AppLayout><Profile /></AppLayout></PrivateRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
