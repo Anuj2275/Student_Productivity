@@ -31,8 +31,11 @@ app.use(
     saveUninitialized: false,
   })
 )
-
-app.use(cors())
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:5173", // Use env or default Vite port
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"]
+}));
 app.use(express.json()) // allow backend to parse JSON bodies in requests
 app.use(passport.initialize())
 app.use(passport.session())
@@ -52,8 +55,9 @@ const PORT = process.env.PORT || 5000;
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     methods: ["GET", "POST"],
+    credentials: true
   },
 });
 
